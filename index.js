@@ -66,12 +66,7 @@ Markov.prototype.wordsFromText = function(text) {
     text = text.replace(/[\x00-\x7F]+/g, '');
     return text.split('');
   }
-  return text.split('').reduce((all, curr) => {
-    if (!curr.match(/[\x00-\x7F]/)) {
-      curr = '|' + curr + '|';
-    }
-    return all + curr;
-  }, '').replace(/\|$/, '').split(/\|+/);
+  return text.match(/[\x00-\x7F]+|[^\x00-\x7F]/g);
 };
 
 //pick a word from the model, favoring words that appear in `text`
