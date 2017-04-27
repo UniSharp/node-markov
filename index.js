@@ -16,9 +16,7 @@ Markov.prototype.train = function(str) {
   var next;
   var prev;
   var node;
-
   //ignore text with fewer than `minimumWords` words
-  if (words.length >= this.minimumWords) {
     for (var i = 0; i < words.length; i++) {
       word = words[i];
       next = words[i + 1];
@@ -43,7 +41,6 @@ Markov.prototype.train = function(str) {
         node.prev[''] = this.incrementCount(node.prev['']);
       }
     }
-  }
 
   return this;
 };
@@ -65,7 +62,9 @@ Markov.prototype.wordsFromText = function(text) {
     text = clean(text);
   }
 
-  return text.split(/\s+/);
+  text = text.replace(/(\r\n|\n|\r)/gm,"");
+
+  return text.split('');
 };
 
 //pick a word from the model, favoring words that appear in `text`
@@ -160,7 +159,7 @@ Markov.prototype.fill = function(word, limit) {
   }
   
   //TODO punctuation?
-  return response.join(' ');
+  return response.join('');
 };
 
 //construct a response to `text` with at most `limit` words

@@ -10,33 +10,28 @@ qwantz
 ------
 
 ```javascript
-  var util = require('util');
-  var fs = require('fs');
-  
-  var Markov = require('markov');
-  var m = new Markov();
-  
-  var s = fs.readSync(__dirname + '/qwantz.txt');
-  m.train(s);
+var util = require('util');
+var fs = require('fs');
 
-  var stdin = process.openStdin();
+var Markov = require('markov');
+var m = new Markov();
+
+var s = fs.readFileSync(__dirname + '/input.txt');
+m.train(s);
+
+var stdin = process.openStdin();
+util.print('> ');
+
+stdin.on('data', function (line) {
+  var res = m.respond(line.toString(), 300);
+  console.log(res);
   util.print('> ');
-  
-  stdin.on('data', function (line) {
-    var res = m.respond(line.toString()).join(' ');
-    console.log(res);
-    util.print('> ');
-  });
+});
 ```
 
 ```bash
-  $ node example/qwantz.js 
-  > Hello friend.
-  Oh, that hurts me. How could fall apart, not unlike this tiny house. remains a danger when you? As I see him (quite often, Yes, As Thank I you? take have on! forgotten male, That oppression is is a A friend
-  > That is troubling news!
-  I've I had must to guard do against with such the a irony part of of their their fundamental fundamental injustices.
-  > Justice eh? SOMEBODY LIGHT UP THE BATSIGNAL
-  crazy I Utahraptor feel slipped alot in better! your about problems the put future! behind full You? of go My down perspective. The
+  $ cd example
+  $ node qwantz.js 
 ```
 
 ## methods
