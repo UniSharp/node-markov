@@ -4,7 +4,7 @@
   "version": "7.0.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/b3nj4m/node-markov.git"
+    "url": "git://github.com/UniSharp/node-markov.git"
   },
   "main": "./index.js",
   "directories": {
