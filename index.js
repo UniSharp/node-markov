@@ -1,9 +1,9 @@
 var _ = require('underscore');
 
-function Markov(minimumWords, caseSensitive, stripPunctuation) {
-  this.minimumWords = minimumWords || 1;
-  this.caseSensitive = !!caseSensitive;
-  this.stripPunctuation = !!stripPunctuation;
+function Markov(options = {caseSensitive: true, stripPunctuation: false, allowAscii: true}) {
+  this.caseSensitive = options.caseSensitive;
+  this.stripPunctuation = options.stripPunctuation;
+  this.allowAscii = options.allowAscii;
   this.model = {};
 }
   
@@ -16,31 +16,30 @@ Markov.prototype.train = function(str) {
   var next;
   var prev;
   var node;
-  //ignore text with fewer than `minimumWords` words
-    for (var i = 0; i < words.length; i++) {
-      word = words[i];
-      next = words[i + 1];
-      prev = words[i - 1];
+  for (var i = 0; i < words.length; i++) {
+    word = words[i];
+    next = words[i + 1];
+    prev = words[i - 1];
 
-      node = this.addDefaultModelNode(word);
+    node = this.addDefaultModelNode(word);
 
-      this.incrementCount(node);
+    this.incrementCount(node);
 
-      //TODO somehow combine generic language dataset with user dataset. e.g. start with generic dataset, then give user data larger weights...
-      if (next) {
-        node.next[next] = this.incrementCount(node.next[next]);
-      }
-      else {
-        node.next[''] = this.incrementCount(node.next['']);
-      }
-
-      if (prev) {
-        node.prev[prev] = this.incrementCount(node.prev[prev]);
-      }
-      else {
-        node.prev[''] = this.incrementCount(node.prev['']);
-      }
+    //TODO somehow combine generic language dataset with user dataset. e.g. start with generic dataset, then give user data larger weights...
+    if (next) {
+      node.next[next] = this.incrementCount(node.next[next]);
     }
+    else {
+      node.next[''] = this.incrementCount(node.next['']);
+    }
+
+    if (prev) {
+      node.prev[prev] = this.incrementCount(node.prev[prev]);
+    }
+    else {
+      node.prev[''] = this.incrementCount(node.prev['']);
+    }
+  }
 
   return this;
 };
@@ -61,10 +60,18 @@ Markov.prototype.wordsFromText = function(text) {
   if (this.stripPunctuation) {
     text = clean(text);
   }
-
   text = text.replace(/(\r\n|\n|\r)/gm,"");
 
-  return text.split('');
+  if (!this.allowAscii) {
+    text = text.replace(/[\x00-\x7F]+/g, '');
+    return text.split('');
+  }
+  return text.split('').reduce((all, curr) => {
+    if (!curr.match(/[\x00-\x7F]/)) {
+      curr = '|' + curr + '|';
+    }
+    return all + curr;
+  }, '').replace(/\|$/, '').split(/\|+/);
 };
 
 //pick a word from the model, favoring words that appear in `text`
